@@ -124,9 +124,15 @@ def generate_structures(
             return len(i) == 0
 
         for i in range(1, config.max_relax_steps + 2):
-            if too_similar(s.positions @ restoring_matrix, final_pool):
+            if too_similar(
+                s.positions @ restoring_matrix,
+                final_pool,
+                config.similarity_threshold,
+            ):
                 if not too_similar(
-                    prev_s.positions @ restoring_matrix, final_pool
+                    prev_s.positions @ restoring_matrix,
+                    final_pool,
+                    config.similarity_threshold,
                 ):
                     if not max_force(prev_s) < config.max_force:
                         rejections["force"] += 1
@@ -204,7 +210,7 @@ def direction(v: np.ndarray) -> np.ndarray:
 
 
 def too_similar(
-    pos: np.ndarray, pool: list[ase.Atoms], threshold: float = 0.1
+    pos: np.ndarray, pool: list[ase.Atoms], threshold: float
 ) -> bool:
     for p in pool:
         if np.linalg.norm(pos - p.positions, axis=1).mean() < threshold:
@@ -228,6 +234,7 @@ class Config:
     max_force: float = 30
     min_separation: float = 0.5
     max_relax_steps: int = 20
+    similarity_threshold: float = 0.1
 
     def get_kT(self) -> float:
         if self.units == "eV":

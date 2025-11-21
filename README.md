@@ -82,6 +82,9 @@ config:
   # the maximum number of relaxations to perform per iteration
   max_relax_steps: 20
 
+  # the threshold for considering a structure too similar to the existing pool
+  similarity_threshold: 0.1  # units are Å
+
 model:
   # the calculator to use to generate the PES model
   calculator: +lennard_jones()
