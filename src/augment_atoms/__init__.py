@@ -39,6 +39,12 @@ def select_structure(
     probs = (1 - beta) * energy_probs + beta * level_probs
     # set any nan to 0
     probs[np.isnan(probs)] = 0
+    probs_sum = probs.sum()
+    if probs_sum == 0:
+        probs[:] = 1.0 / len(probs)
+    else:
+        probs /= probs_sum
+
     idx = rand.choice(len(structures), p=probs)
 
     return structures[idx]
@@ -196,10 +202,11 @@ def unique_id():
 
 def label(structure: ase.Atoms, calc: Calculator) -> ase.Atoms:
     structure = structure.copy()
-    calc.calculate(structure, ["energy", "forces"])
+    calc.calculate(structure, ["energy", "forces", "stress"])
 
     structure.arrays["forces"] = calc.results["forces"]
     structure.info["energy"] = calc.results["energy"]
+    structure.info["stress"] = calc.results["stress"]
     return structure
 
 
